@@ -1,20 +1,33 @@
+local level = require("engine.level")
+local Sprite = require("engine.sprite")
+
+
 local screen
+
 
 function love.load(args)
 	love.graphics.setDefaultFilter("nearest", "nearest")
 	love.graphics.setLineStyle("rough")
 
+	SPLAYER_IDLE = Sprite("assets/player.png", 22, 25, 0.1)
+
 	screen = love.graphics.newCanvas(WIDTH, HEIGHT)
+
+	level.add_body(require("game.player")(100, 100))
 end
+
 
 function love.update(dt)
+	level.update(dt)
 end
 
+
 function love.draw()
-	love.graphicsa.setCanvas(screen)
+	love.graphics.setCanvas(screen)
 	love.graphics.clear()
 
 	-- game render goes here...
+	level.draw()
 
 	do
 		local w, h = love.graphics.getDimensions()

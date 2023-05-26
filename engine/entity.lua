@@ -18,11 +18,26 @@ function Entity:new(x, y, width, height)
 	self.height = height
 	self.vel_x = 0
 	self.vel_y = 0
+
+	self.image_scale_x = 1
+	self.image_scale_y = 1
+	self.image_origin_x = 0
+	self.image_origin_y = 0
+	self.image_rotation = 0
+	self.image_flipped = false
 end
 
 
 function Entity:set_order(order)
 	self.order = order + self.diff
+end
+
+
+function Entity:play(sprite)
+	if self.sprite ~= sprite then
+		self.sprite = sprite
+		self.image_index = 1
+	end
 end
 
 
@@ -37,6 +52,17 @@ end
 
 -- NOTE(ellora): this function are overridable, but i don't recommend do it
 function Entity:draw()
+	assert(self.sprite)
+	love.graphics.setColor(1, 1, 1)
+	self.sprite:draw_image_index(
+		self.image_index,
+		self.x,
+		self.y,
+		self.image_rotation,
+		self.image_scale_x * (self.image_flipped and -1 or 1),
+		self.image_scale_y,
+		self.image_origin_x,
+		self.image_origin_y)
 end
 
 

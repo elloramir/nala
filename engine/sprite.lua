@@ -2,7 +2,7 @@ local lume = require("libs.lume")
 local Object = require("libs.classic")
 
 
-local Sheet = Object:extend()
+local Sprite = Object:extend()
 
 
 -- cache image for future calls. we may want a content manage
@@ -12,23 +12,24 @@ local load_image = lume.memoize(function(filename)
 end)
 
 
-function Sheet:new(filename, cell_w, cell_h)
+function Sprite:new(filename, cell_w, cell_h, speed)
 	self.image = load_image(filename)
 	self.cell_w = cell_w
 	self.cell_h = cell_h
-	self.quads = {}
+	self.speed = speed
+	self.images = {}
 	for y=0, self.image:getHeight()-cell_h, cell_h do
 		for x=0, self.image:getWidth()-cell_w, cell_w do
-			table.insert(self.quads, love.graphics.newQuad(x, y, cell_w, cell_h, self.image))
+			table.insert(self.images, love.graphics.newQuad(x, y, cell_w, cell_h, self.image))
 		end
 	end 
 end
 
 
-function Sheet:render_quad(index, ...)
-	assert(index <= #self.quads)
-	love.graphics.draw(self.image, self.quads[index], ...)
+function Sprite:draw_image_index(index, ...)
+	assert(index <= #self.images)
+	love.graphics.draw(self.image, self.images[index], ...)
 end
 
 
-return Sheet
+return Sprite
