@@ -9,12 +9,12 @@ local Actor = Entity:extend()
 function Actor:new(x, y, width, height)
     Actor.super.new(self)
 
-    self.x = x
-    self.y = y
-    self.width = width
-    self.height = height
-    self.speed_x = 0
-    self.speed_y = 0
+	self.x = x
+	self.y = y
+	self.width = width
+	self.height = height
+	self.speed_x = 0
+	self.speed_y = 0
 
 	self.image_scale_x = 1
 	self.image_scale_y = 1
@@ -36,8 +36,8 @@ end
 
 function Actor:update_image_index(dt)
 	self.image_index_timer = self.image_index_timer + dt
-	if self.image_index_timer >= self.sprite.speed then
-		self.image_index_timer = self.image_index_timer - self.sprite.speed
+	if self.image_index_timer >= ANIM_SPEED then
+		self.image_index_timer = self.image_index_timer - ANIM_SPEED
 		self.image_index = self.image_index + 1
 		if self.image_index > #self.sprite.images then
 			self.image_index = 1
@@ -98,19 +98,23 @@ function Actor:place_meeting(ox, oy)
 end
 
 
-function Actor:move(dt)
-	local pixels_x = math.abs(self.vel_x*dt)
-	local pixels_y = math.abs(self.vel_y*dt)
-	local dir_x = lume.sign(self.vel_x)
-	local dir_y = lume.sign(self.vel_y)
+function Actor:move_and_slide(dt)
+	local pixels_x = math.abs(self.speed_x*dt)
+	local pixels_y = math.abs(self.speed_y*dt)
+	local dir_x = lume.sign(self.speed_x)
+	local dir_y = lume.sign(self.speed_y)
 	for i=1, pixels_x do
 		if not self:place_meeting() then
 			self.x = self.x+dir_x
+		else
+			self.speed_x = 0
 		end
 	end
 	for i=1, pixels_y do
 		if not self:place_meeting() then
 			self.y = self.y+dir_y
+		else
+			self.speed_y = 0
 		end
 	end
 end

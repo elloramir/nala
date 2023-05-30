@@ -12,11 +12,10 @@ local load_image = lume.memoize(function(filename)
 end)
 
 
-function Sprite:new(filename, cell_w, cell_h, speed)
+function Sprite:new(filename, cell_w, cell_h)
 	self.image = load_image(filename)
 	self.cell_w = cell_w
 	self.cell_h = cell_h
-	self.speed = speed
 	self.images = {}
 	for y=0, self.image:getHeight()-cell_h, cell_h do
 		for x=0, self.image:getWidth()-cell_w, cell_w do

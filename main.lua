@@ -12,7 +12,7 @@ function love.load()
     screen = love.graphics.newCanvas(WIDTH, HEIGHT)
 
     -- load sprites
-    SPR_PLAYER_IDLE = Sprite("assets/player.png", 22, 25, 0.1)
+    SPR_PLAYER_IDLE = Sprite("assets/player.png", 22, 25)
 
     level.add_body(require("entities.player")(100, 100))
 end
