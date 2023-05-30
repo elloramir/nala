@@ -1,39 +1,32 @@
-local level = require("engine.level")
+local level = require("level")
 local lume = require("libs.lume")
-local Object = require("libs.classic")
+local Entity = require("entity")
 
 
-local Entity = Object:extend()
+local Actor = Entity:extend()
 
 
--- entity class are nothing more than a rectangle with a script attached.
-function Entity:new(x, y, width, height)
-	self.active = false
-	self.diff = love.timer.getTime() * 1e-7
-	self:set_order(0)
+function Actor:new(x, y, width, height)
+    Actor.super.new(self)
 
-	self.x = x
-	self.y = y
-	self.width = width
-	self.height = height
-	self.vel_x = 0
-	self.vel_y = 0
+    self.x = x
+    self.y = y
+    self.width = width
+    self.height = height
+    self.speed_x = 0
+    self.speed_y = 0
 
 	self.image_scale_x = 1
 	self.image_scale_y = 1
 	self.image_origin_x = 0
 	self.image_origin_y = 0
 	self.image_rotation = 0
+	self.image_index_timer = 0
 	self.image_flipped = false
 end
 
 
-function Entity:set_order(order)
-	self.order = order + self.diff
-end
-
-
-function Entity:play(sprite)
+function Actor:play(sprite)
 	if self.sprite ~= sprite then
 		self.sprite = sprite
 		self.image_index = 1
@@ -41,17 +34,19 @@ function Entity:play(sprite)
 end
 
 
-function Entity:destroy()
-	self.active = false
+function Actor:update_image_index(dt)
+	self.image_index_timer = self.image_index_timer + dt
+	if self.image_index_timer >= self.sprite.speed then
+		self.image_index_timer = self.image_index_timer - self.sprite.speed
+		self.image_index = self.image_index + 1
+		if self.image_index > #self.sprite.images then
+			self.image_index = 1
+		end
+	end
 end
 
 
-function Entity:update(dt)
-end
-
-
--- NOTE(ellora): this function are overridable, but i don't recommend do it
-function Entity:draw()
+function Actor:draw()
 	assert(self.sprite)
 	love.graphics.setColor(1, 1, 1)
 	self.sprite:draw_image_index(
@@ -66,7 +61,7 @@ function Entity:draw()
 end
 
 
-function Entity:overlaps(other)
+function Actor:overlaps(other)
 	return
 		self.x < other.x + other.width and
 		self.x + self.width > other.x and
@@ -75,7 +70,7 @@ function Entity:overlaps(other)
 end
 
 
-function Entity:place_meeting(ox, oy)
+function Actor:place_meeting(ox, oy)
 	ox = ox or 0
 	oy = oy or 0
 
@@ -103,7 +98,7 @@ function Entity:place_meeting(ox, oy)
 end
 
 
-function Entity:move(dt)
+function Actor:move(dt)
 	local pixels_x = math.abs(self.vel_x*dt)
 	local pixels_y = math.abs(self.vel_y*dt)
 	local dir_x = lume.sign(self.vel_x)
@@ -121,4 +116,4 @@ function Entity:move(dt)
 end
 
 
-return Entity 
+return Actor
