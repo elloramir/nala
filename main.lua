@@ -12,9 +12,26 @@ function love.load()
     screen = love.graphics.newCanvas(WIDTH, HEIGHT)
 
     -- load sprites
-    SPR_PLAYER_IDLE = Sprite("assets/player.png", 22, 25)
+    SPR_PLAYER_IDLE = Sprite("assets/player_idle.png", 32, 32)
+    SPR_PLAYER_JUMP = Sprite("assets/player_jump.png", 32, 32)
 
     level.add_body(require("entities.player")(100, 100))
+    -- straigh line of tiles
+    for i = 0, 31 do
+        level.set_tile(i, 17)
+    end
+    -- walls
+    for i = 0, 17 do
+        level.set_tile(0, i)
+        level.set_tile(31, i)
+    end
+end
+
+
+function love.keypressed(key)
+    if key == "escape" then
+        love.event.quit()
+    end
 end
 
 

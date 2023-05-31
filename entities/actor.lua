@@ -7,7 +7,7 @@ local Actor = Entity:extend()
 
 
 function Actor:new(x, y, width, height)
-    Actor.super.new(self)
+	Actor.super.new(self)
 
 	self.x = x
 	self.y = y
@@ -15,6 +15,11 @@ function Actor:new(x, y, width, height)
 	self.height = height
 	self.speed_x = 0
 	self.speed_y = 0
+	self.accum_x = 0
+	self.accum_y = 0
+	self.is_floor = false
+	self.is_wall = false
+	self.is_ceil = false
 
 	self.image_scale_x = 1
 	self.image_scale_y = 1
@@ -76,9 +81,9 @@ function Actor:place_meeting(ox, oy)
 
 	-- check first for tilemaps (fastter)
 	local x1 = math.floor((self.x+ox)/TILE_SIZE)
-	local y1 = math.floor((self.x+ox)/TILE_SIZE)
+	local y1 = math.floor((self.y+oy)/TILE_SIZE)
 	local x2 = math.floor((self.x+self.width+ox-1)/TILE_SIZE)
-	local y2 = math.floor((self.x+self.width+ox-1)/TILE_SIZE)
+	local y2 = math.floor((self.y+self.height+oy-1)/TILE_SIZE)
 	for y=y1, y2 do
 		for x=x1, x2 do
 			if level.get_tile(x, y) then
@@ -98,23 +103,43 @@ function Actor:place_meeting(ox, oy)
 end
 
 
+-- TODO(ellora): refactor this function
+-- 1 - speed_y are flipping and flopping
 function Actor:move_and_slide(dt)
-	local pixels_x = math.abs(self.speed_x*dt)
-	local pixels_y = math.abs(self.speed_y*dt)
+	self.is_floor = false
+	self.is_wall = false
+	self.is_ceil = false
+	-- compute total movement for both axis
+	self.accum_x = self.accum_x + self.speed_x * dt
+	self.accum_y = self.accum_y + self.speed_y * dt
+	local total_x = math.floor(self.accum_x+0.5)
+	local total_y = math.floor(self.accum_y+0.5)
+	-- decrease accum
+	self.accum_x = self.accum_x - total_x
+	self.accum_y = self.accum_y - total_y
 	local dir_x = lume.sign(self.speed_x)
 	local dir_y = lume.sign(self.speed_y)
-	for i=1, pixels_x do
-		if not self:place_meeting() then
-			self.x = self.x+dir_x
-		else
+	while total_x ~= 0 do
+		if self:place_meeting(dir_x) then
 			self.speed_x = 0
+			break
+		else
+			self.x = self.x + dir_x
+			total_x = total_x - dir_x
 		end
 	end
-	for i=1, pixels_y do
-		if not self:place_meeting() then
-			self.y = self.y+dir_y
-		else
+	while total_y ~= 0 do
+		if self:place_meeting(0, dir_y) then
+			if dir_y == 1 then
+				self.is_floor = true
+			elseif dir_y == -1 then
+				self.is_ceil = true
+			end
 			self.speed_y = 0
+			break
+		else
+			self.y = self.y + dir_y
+			total_y = total_y - dir_y
 		end
 	end
 end

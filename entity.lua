@@ -21,10 +21,6 @@ function Entity:destroy()
 end
 
 
-function Entity:update(dt)
-end
-
-
 function Entity:draw()
 end
 
