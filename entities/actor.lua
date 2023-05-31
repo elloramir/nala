@@ -17,9 +17,6 @@ function Actor:new(x, y, width, height)
 	self.speed_y = 0
 	self.accum_x = 0
 	self.accum_y = 0
-	self.is_floor = false
-	self.is_wall = false
-	self.is_ceil = false
 
 	self.image_scale_x = 1
 	self.image_scale_y = 1
@@ -28,6 +25,11 @@ function Actor:new(x, y, width, height)
 	self.image_rotation = 0
 	self.image_index_timer = 0
 	self.image_flipped = false
+end
+
+
+function Actor:is_floor()
+	return self:place_meeting(0, 1)
 end
 
 
@@ -103,43 +105,44 @@ function Actor:place_meeting(ox, oy)
 end
 
 
--- TODO(ellora): refactor this function
--- 1 - speed_y are flipping and flopping
+-- TODO(ellora): re-refactor this function
 function Actor:move_and_slide(dt)
-	self.is_floor = false
-	self.is_wall = false
-	self.is_ceil = false
-	-- compute total movement for both axis
-	self.accum_x = self.accum_x + self.speed_x * dt
-	self.accum_y = self.accum_y + self.speed_y * dt
-	local total_x = math.floor(self.accum_x+0.5)
-	local total_y = math.floor(self.accum_y+0.5)
-	-- decrease accum
-	self.accum_x = self.accum_x - total_x
-	self.accum_y = self.accum_y - total_y
-	local dir_x = lume.sign(self.speed_x)
-	local dir_y = lume.sign(self.speed_y)
-	while total_x ~= 0 do
-		if self:place_meeting(dir_x) then
-			self.speed_x = 0
-			break
-		else
-			self.x = self.x + dir_x
-			total_x = total_x - dir_x
+	if self.speed_x ~= 0 then
+		self.accum_x = self.accum_x + self.speed_x * dt
+		local total = math.floor(self.accum_x)
+		if total ~= 0 then -- has at least 1 pixel to move
+			self.accum_x = self.accum_x - total
+			self.is_wall = false
+			local sign = lume.sign(total)
+			for _=1, math.abs(total) do
+				if not self:place_meeting(sign, 0) then
+					self.x = self.x + sign
+				else
+					self.is_wall = true
+					self.speed_x = 0
+					self.accum_x = 0
+					break
+				end
+			end
 		end
 	end
-	while total_y ~= 0 do
-		if self:place_meeting(0, dir_y) then
-			if dir_y == 1 then
-				self.is_floor = true
-			elseif dir_y == -1 then
-				self.is_ceil = true
+	if self.speed_y ~= 0 then
+		self.accum_y = self.accum_y + self.speed_y * dt
+		local total = math.floor(self.accum_y)
+		if total ~= 0 then -- has at least 1 pixel to move
+			self.accum_y = self.accum_y - total
+			self.is_floor = false
+			local sign = lume.sign(total)
+			for _=1, math.abs(total) do
+				if not self:place_meeting(0, sign) then
+					self.y = self.y + sign
+				else
+					self.is_floor = true
+					self.speed_y = 0
+					self.accum_y = 0
+					break
+				end
 			end
-			self.speed_y = 0
-			break
-		else
-			self.y = self.y + dir_y
-			total_y = total_y - dir_y
 		end
 	end
 end
