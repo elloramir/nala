@@ -28,11 +28,6 @@ function Actor:new(x, y, width, height)
 end
 
 
-function Actor:is_floor()
-	return self:place_meeting(0, 1)
-end
-
-
 function Actor:play(sprite)
 	if self.sprite ~= sprite then
 		self.sprite = sprite

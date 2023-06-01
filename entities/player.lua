@@ -25,11 +25,6 @@ end
 
 
 function Player:update(dt)
-    -- animations
-    if self.speed_x ~= 0 and self.is_floor then self:play(SPR_PLAYER_IDLE) end
-    if not self.is_floor then self:play(SPR_PLAYER_JUMP)
-    else self:play(SPR_PLAYER_IDLE) end
-
     do
         local dir = 0
 
