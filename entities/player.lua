@@ -6,8 +6,8 @@ local Player = Actor:extend()
 
 Player.GRAVITY = 1000
 Player.ACCELL = 1000
-Player.FRICTION = 400
-Player.MAX_GROUND_SPEED = 120
+Player.FRICTION = 1000
+Player.MAX_GROUND_SPEED = 220
 Player.JUMP_SPEED = -300
 Player.MAX_FALL_SPEED = 300
 

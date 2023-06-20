@@ -132,6 +132,11 @@ function Actor:move_and_slide(dt)
 		end
 	end
 
+	-- reset flags
+	self.is_wall = colides_x
+	self.is_floor = colides_y and dir_y == 1
+	self.is_ceeling = colides_y and dir_y == -1
+
 	-- normal forces
 	if colides_x then self.speed_x = 0 end
 	if colides_y then self.speed_y = 0 end
