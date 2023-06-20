@@ -102,44 +102,39 @@ end
 
 -- TODO(ellora): re-refactor this function
 function Actor:move_and_slide(dt)
-	if self.speed_x ~= 0 then
-		self.accum_x = self.accum_x + self.speed_x * dt
-		local total = math.floor(self.accum_x)
-		if total ~= 0 then -- has at least 1 pixel to move
-			self.accum_x = self.accum_x - total
-			self.is_wall = false
-			local sign = lume.sign(total)
-			for _=1, math.abs(total) do
-				if not self:place_meeting(sign, 0) then
-					self.x = self.x + sign
-				else
-					self.is_wall = true
-					self.speed_x = 0
-					self.accum_x = 0
-					break
-				end
-			end
+	local total_x = self.accum_x+self.speed_x*dt
+	local total_y = self.accum_y+self.speed_y*dt
+
+	self.accum_x = total_x % 1
+	self.accum_y = total_y % 1
+
+	local pixels_x = math.abs(total_x-self.accum_x)
+	local pixels_y = math.abs(total_y-self.accum_y)
+
+	local dir_x = lume.sign(self.speed_x)
+	local dir_y = lume.sign(self.speed_y)
+
+	local colides_x = false
+	local colides_y = false
+	
+	for i = 1, pixels_x do
+		colides_x = self:place_meeting(dir_x, 0)
+		if not colides_x then 
+			self.x = self.x + dir_x
 		end
 	end
-	if self.speed_y ~= 0 then
-		self.accum_y = self.accum_y + self.speed_y * dt
-		local total = math.floor(self.accum_y)
-		if total ~= 0 then -- has at least 1 pixel to move
-			self.accum_y = self.accum_y - total
-			self.is_floor = false
-			local sign = lume.sign(total)
-			for _=1, math.abs(total) do
-				if not self:place_meeting(0, sign) then
-					self.y = self.y + sign
-				else
-					self.is_floor = true
-					self.speed_y = 0
-					self.accum_y = 0
-					break
-				end
-			end
+
+
+	for i = 1, pixels_y do
+		colides_y = self:place_meeting(0, dir_y)
+		if not colides_y then 
+			self.y = self.y + dir_y
 		end
 	end
+
+	-- normal forces
+	if colides_x then self.speed_x = 0 end
+	if colides_y then self.speed_y = 0 end
 end
 
 
